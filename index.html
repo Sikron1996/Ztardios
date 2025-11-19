@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Ztardio Presale Tracker</title>
+<script>
+async function loadStats(){
+ const r = await fetch('/api/stats');
+ const d = await r.json();
+ document.getElementById('total').textContent=d.total.toFixed(4)+' ZEC';
+ document.getElementById('progress').textContent=d.progress+'%';
+ document.getElementById('bar').style.width=d.progress+'%';
+ const list=document.getElementById('tx');
+ list.innerHTML='';
+ d.txs.forEach(t=>{
+   const li=document.createElement('div');
+   li.textContent=t.txid+' +'+t.amount+' ZEC';
+   list.appendChild(li);
+ });
+}
+setInterval(loadStats,5000);
+window.onload=loadStats;
+</script>
+<style>
+#bar{height:10px;background:#0f0;}
+#container{width:300px;border:1px solid #555;}
+</style>
+</head>
+<body>
+<h1>Ztardio Tracker</h1>
+<div>Total: <span id="total"></span></div>
+<div id="container"><div id="bar"></div></div>
+<div>Progress: <span id="progress"></span></div>
+<h3>Transactions</h3>
+<div id="tx"></div>
+</body>
+</html>
