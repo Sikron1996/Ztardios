@@ -7,10 +7,13 @@ export default async function handler() {
   const GOAL = 50;
 
   try {
-    const r = await fetch(`https://api.zcha.in/v2/mainnet/accounts/${ADDRESS}`);
+    // Отримуємо список транзакцій t-адреси
+    const r = await fetch(
+      `https://api.zcha.in/v2/mainnet/transactions/${ADDRESS}?limit=200`
+    );
     const data = await r.json();
 
-    if (!data || !data.txs) {
+    if (!Array.isArray(data)) {
       return new Response(JSON.stringify({
         total: 0,
         count: 0,
@@ -20,11 +23,13 @@ export default async function handler() {
       }), { status: 200 });
     }
 
-    // Витягуємо тільки ВХІДНІ транзакції
-    const incoming = data.txs.filter(tx => tx.value > 0)
+    // Фільтруємо тільки вхідні транзакції (value > 0)
+    const incoming = data
+      .filter(tx => tx.value && tx.value > 0)
       .map(tx => ({
         txid: tx.hash,
-        amount: tx.value / 1e8
+        amount: tx.value / 1e8,
+        time: tx.time
       }));
 
     const total = incoming.reduce((a, b) => a + b.amount, 0);
