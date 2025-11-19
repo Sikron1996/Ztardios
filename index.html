@@ -2,36 +2,62 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<title>Ztardio Presale Tracker</title>
-<script>
-async function loadStats(){
- const r = await fetch('/api/stats');
- const d = await r.json();
- document.getElementById('total').textContent=d.total.toFixed(4)+' ZEC';
- document.getElementById('progress').textContent=d.progress+'%';
- document.getElementById('bar').style.width=d.progress+'%';
- const list=document.getElementById('tx');
- list.innerHTML='';
- d.txs.forEach(t=>{
-   const li=document.createElement('div');
-   li.textContent=t.txid+' +'+t.amount+' ZEC';
-   list.appendChild(li);
- });
-}
-setInterval(loadStats,5000);
-window.onload=loadStats;
-</script>
-<style>
-#bar{height:10px;background:#0f0;}
-#container{width:300px;border:1px solid #555;}
-</style>
+<title>Ztardio • Presale Tracker</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="app.js"></script>
 </head>
 <body>
-<h1>Ztardio Tracker</h1>
-<div>Total: <span id="total"></span></div>
-<div id="container"><div id="bar"></div></div>
-<div>Progress: <span id="progress"></span></div>
-<h3>Transactions</h3>
-<div id="tx"></div>
+<div class="container">
+
+<div class="tracker-box">
+<div class="header-row">
+<span class="title">PRESALE TRACKER</span>
+<span class="live-dot"></span>
+<span class="live-text">LIVE</span>
+</div>
+
+<div class="stats-grid">
+<div class="stat">
+<span class="label">TOTAL RECEIVED</span>
+<span class="value" id="total">0.0000 ZEC</span>
+</div>
+
+<div class="stat">
+<span class="label">TOTAL TRANSACTIONS</span>
+<span class="value" id="txcount">0</span>
+</div>
+
+<div class="stat">
+<span class="label">AVG PER TX</span>
+<span class="value" id="avg">0.0000 ZEC</span>
+</div>
+
+<div class="stat">
+<span class="label">EST. MINTS</span>
+<span class="value" id="mints">0</span>
+</div>
+
+<div class="stat">
+<span class="label">MIN PRICE</span>
+<span class="value">0.001 ZEC</span>
+</div>
+
+<div class="stat">
+<span class="label">LAST UPDATED</span>
+<span class="value" id="updated">--:--:--</span>
+</div>
+</div>
+
+<div class="progress-box">
+<span class="label">PRESALE PROGRESS</span>
+<div class="progress-line"><div id="bar"></div></div>
+<span class="percent" id="progress">0%</span>
+</div>
+
+<h3 class="section-title">RECENT TRANSACTIONS</h3>
+<div class="txlist" id="tx"></div>
+
+</div>
+</div>
 </body>
 </html>
