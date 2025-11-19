@@ -7,51 +7,48 @@ export default async function handler() {
   const GOAL = 50;
 
   try {
-    // 1. Отримуємо транзакції адреси
+    // ПРОСТИЙ + НАДІЙНИЙ API
     const r = await fetch(
-      `https://api.zcha.in/v2/mainnet/transactions/${ADDRESS}?limit=200`,
+      `https://api.zcashexplorer.app/api/v1/address/${ADDRESS}/transactions`,
       { cache: "no-cache" }
     );
+
     const raw = await r.json();
 
-    // 2. Нормалізуємо відгук: масив або object
-    const txs = Array.isArray(raw)
-      ? raw
-      : raw.txs
-      ? raw.txs
-      : [];
+    if (!raw || !Array.isArray(raw.transactions)) {
+      return new Response(JSON.stringify({
+        total: 0,
+        count: 0,
+        avg: 0,
+        progress: 0,
+        txs: []
+      }), { status: 200 });
+    }
 
-    // 3. Фільтруємо тільки ВХІДНІ (value > 0)
-    const incoming = txs
-      .filter(tx => typeof tx.value === "number" && tx.value > 0)
+    // Вхідні транзакції (value > 0)
+    const incoming = raw.transactions
+      .filter(tx => tx.value > 0)
       .map(tx => ({
         txid: tx.hash,
-        amount: tx.value / 1e8,
-        time: tx.time || null
+        amount: tx.value,
+        time: tx.timestamp
       }));
 
-    // 4. Розрахунок
+    // Обчислення
     const total = incoming.reduce((a, b) => a + b.amount, 0);
     const count = incoming.length;
     const avg = count > 0 ? total / count : 0;
     const progress = Math.min(100, Math.round((total / GOAL) * 100));
 
-    // 5. Відповідь
-    return new Response(
-      JSON.stringify({
-        total,
-        count,
-        avg,
-        progress,
-        txs: incoming,
-      }),
-      { status: 200 }
-    );
+    return new Response(JSON.stringify({
+      total,
+      count,
+      avg,
+      progress,
+      txs: incoming
+    }), { status: 200 });
 
   } catch (err) {
-    return new Response(
-      JSON.stringify({ error: err.toString() }),
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: err.toString() }), { status: 500 });
   }
 }
